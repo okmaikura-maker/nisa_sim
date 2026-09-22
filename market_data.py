@@ -2,6 +2,18 @@
 実際の市場データ取得 (yfinance)。NISA成長投資枠でよく使われる
 東証上場銘柄・ETFを中心にウォッチリストを持つ。
 """
+import os
+
+# クラウドのClaude Code実行環境(CCR)はTLSを再終端するポリシー実施プロキシを
+# 経由して外部HTTPS通信を行う。そのCA証明書を信頼しないと、yfinanceが使う
+# curl_cffi/requestsからの外部接続がTLSハンドシェイクで拒否される
+# (CONNECT tunnel failed, 403)。ローカル実行では該当パスが存在しないため無害。
+_CCR_CA_BUNDLE = "/root/.ccr/ca-bundle.crt"
+if os.path.exists(_CCR_CA_BUNDLE):
+    os.environ.setdefault("REQUESTS_CA_BUNDLE", _CCR_CA_BUNDLE)
+    os.environ.setdefault("SSL_CERT_FILE", _CCR_CA_BUNDLE)
+    os.environ.setdefault("CURL_CA_BUNDLE", _CCR_CA_BUNDLE)
+
 import yfinance as yf
 
 WATCHLIST = {
